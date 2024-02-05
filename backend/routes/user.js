@@ -115,10 +115,24 @@ app.put("/api/v1/user", authMiddleware, async (req, res) => {
 
 })
 
-app.get("/api/v1/user/bulk", (req, res) => {
+app.get("/api/v1/user/bulk", authMiddleware, async (req, res) => {
+    const filter = req.query.filter || "";
+    const users = await User.find({
+        $or: [
+            { firstName: { $regex: filter } },
+            { lastName: { $regex: filter } }
+        ]
+    })
 
+    res.status(200).json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            id: users._id
+        }))
+    });
 })
-
 
 module.exports = userRouter;
 
