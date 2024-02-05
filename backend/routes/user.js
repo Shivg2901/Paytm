@@ -12,6 +12,7 @@ app.use("/api/v1", rootRouter);
 app.use(express.json());
 
 
+import { Account } from "../db";
 import { authMiddleware } from "../middleware";
 import { User } from "./db";
 
@@ -53,6 +54,12 @@ app.post("/api/v1/user/signup", async (req, res) => {
     })
 
     const userId = user._id;
+
+    await Account.create({
+        userId: userId,
+        balance: 1 + Math.random() * 10000,
+    })
+
     const token = jwt.sign({ userId }, JWT_SECRET);
     res.status(200).json({
         message: "User created successfully",
