@@ -1,16 +1,12 @@
 const express = require("express");
-const userRouter = express.Router();
+const router = express.Router();
 
-const app = express();
 const zod = require("zod");
 const { JWT_SECRET } = require("../config")
 const jwt = require("jsonwebtoken");
 
 
-app.use(cors());
-app.use("/api/v1", rootRouter);
 app.use(express.json());
-
 
 import { Account } from "../db";
 import { authMiddleware } from "../middleware";
@@ -30,7 +26,7 @@ const signinSchema = zod.object({
 })
 
 
-app.post("/api/v1/user/signup", async (req, res) => {
+router.post("/signup", async (req, res) => {
     const validatedSignup = signupSchema.safeParse(req.body);
     const alreadyExists = await User.find({
         username: req.body.username
@@ -67,7 +63,7 @@ app.post("/api/v1/user/signup", async (req, res) => {
     })
 })
 
-app.get("/api/v1/user/signin", async (req, res) => {
+router.post("/signin", async (req, res) => {
     const validatedSignin = signinSchema.safeParse(req.body);
     if (!validatedSignin.success) {
         res.status.json({
@@ -75,7 +71,7 @@ app.get("/api/v1/user/signin", async (req, res) => {
         })
     }
 
-    const user = await User.find({
+    const user = await User.findOne({
         username: req.body.username,
         password: req.body.password,
     })
@@ -84,6 +80,7 @@ app.get("/api/v1/user/signin", async (req, res) => {
         res.status.json({
             message: "Error while logging in"
         })
+        return;
     }
 
     const userId = user._id;
@@ -104,7 +101,7 @@ const updatedUserSchema = zod.object({
     message: "Atleast one field is required",
 })
 
-app.put("/api/v1/user", authMiddleware, async (req, res) => {
+router.put("/", authMiddleware, async (req, res) => {
     const validatedUpdatedUser = updatedUserSchema.safeParse(req.body);
     if (!validatedUpdatedUser.success) {
         res.json({
@@ -122,7 +119,7 @@ app.put("/api/v1/user", authMiddleware, async (req, res) => {
 
 })
 
-app.get("/api/v1/user/bulk", authMiddleware, async (req, res) => {
+router.get("/bulk", authMiddleware, async (req, res) => {
     const filter = req.query.filter || "";
     const users = await User.find({
         $or: [
@@ -141,5 +138,5 @@ app.get("/api/v1/user/bulk", authMiddleware, async (req, res) => {
     });
 })
 
-module.exports = userRouter;
+module.exports = router;
 

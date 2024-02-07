@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("./config");
 
 const authMiddleware = (req, res, next) => {
     const auth = req.headers.authorization;
+
     const authHead = auth.split(" ");
     const token = authHead[1];
 
-    if (!auth || !authHead.startswith("Bearer ")) {
+    if (!auth || !auth.startswith("Bearer ")) {
         res.status(403).json({
             message: "Some error"
         })
