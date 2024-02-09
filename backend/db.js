@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 mongoose.connect("mongodb+srv://admin:qkp2e3HD4319AEC3@cluster0.xcouclx.mongodb.net/");
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -10,6 +10,7 @@ const userSchema = mongoose.Schema({
         minLength: 5,
         maxLength: 15,
         lowercase: true,
+        trim: true,
     },
     firstName: {
         type: String,
@@ -30,9 +31,9 @@ const userSchema = mongoose.Schema({
     }
 })
 
-const accountSchema = mongoose.Schema({
+const accountSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Types.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },

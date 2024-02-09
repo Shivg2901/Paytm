@@ -5,12 +5,10 @@ const zod = require("zod");
 const { JWT_SECRET } = require("../config")
 const jwt = require("jsonwebtoken");
 
+const { Account } = require("../db");
+const { authMiddleware } = require("../middleware");
+const { User } = require("../db");
 
-app.use(express.json());
-
-import { Account } from "../db";
-import { authMiddleware } from "../middleware";
-import { User } from "./db";
 
 
 const signupSchema = zod.object({
@@ -28,15 +26,17 @@ const signinSchema = zod.object({
 
 router.post("/signup", async (req, res) => {
     const validatedSignup = signupSchema.safeParse(req.body);
-    const alreadyExists = await User.find({
-        username: req.body.username
-    });
+
     if (!validatedSignup.success) {
         res.status(404).json({
             message: "Incorrect Inputs",
         })
     }
-    if (!alreadyExists) {
+    const alreadyExists = await User.find({
+        username: req.body.username
+    });
+
+    if (alreadyExists) {
         res.status(404).json({
             message: "Email already taken"
         })
