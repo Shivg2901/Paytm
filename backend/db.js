@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-mongoose.connect("mongodb+srv://admin:qkp2e3HD4319AEC3@cluster0.xcouclx.mongodb.net/");
+mongoose.connect("mongodb+srv://admin:qkp2e3HD4319AEC3@cluster0.xcouclx.mongodb.net/paytm");
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         minLength: 5,
-        maxLength: 15,
         lowercase: true,
         trim: true,
     },

@@ -25,18 +25,18 @@ const signinSchema = zod.object({
 
 
 router.post("/signup", async (req, res) => {
-    const validatedSignup = signupSchema.safeParse(req.body);
+    const { success } = signupSchema.safeParse(req.body);
 
-    if (!validatedSignup.success) {
+    if (!success) {
         res.status(404).json({
             message: "Incorrect Inputs",
         })
     }
-    const alreadyExists = await User.find({
+    const existingUser = await User.findOne({
         username: req.body.username
     });
 
-    if (alreadyExists) {
+    if (existingUser) {
         res.status(404).json({
             message: "Email already taken"
         })
@@ -53,7 +53,7 @@ router.post("/signup", async (req, res) => {
 
     await Account.create({
         userId: userId,
-        balance: 1 + Math.random() * 10000,
+        balance: Math.floor(1 + Math.random() * 10000),
     })
 
     const token = jwt.sign({ userId }, JWT_SECRET);
@@ -64,8 +64,8 @@ router.post("/signup", async (req, res) => {
 })
 
 router.post("/signin", async (req, res) => {
-    const validatedSignin = signinSchema.safeParse(req.body);
-    if (!validatedSignin.success) {
+    const { success } = signinSchema.safeParse(req.body);
+    if (!success) {
         res.status.json({
             message: "Error while logging in"
         })
