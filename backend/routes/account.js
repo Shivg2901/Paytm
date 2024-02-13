@@ -1,12 +1,14 @@
 const express = require("express");
-const { authMiddleware } = require("../middleware");
+const { authMiddleware, rollbackMiddleware } = require("../middleware");
 const { Account } = require("../db");
 const { default: mongoose } = require("mongoose");
-const uuid = require('uuid/v4');
-const { rollbackMiddleware } = require("../rollbackMiddleware");
+const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
+const cookieParser = require("cookie-parser");
 
 router.use(rollbackMiddleware);
+
+router.use(cookieParser());
 
 router.get("/balance", authMiddleware, async (req, res) => {
     const id = req.userId;
@@ -26,7 +28,7 @@ router.get("/balance", authMiddleware, async (req, res) => {
 })
 
 router.post("/transfer", authMiddleware, async (req, res) => {
-    const transactionId = req.cookies.transactionId || uuid();
+    const transactionId = (req.cookies && req.cookies.transactionId) || uuidv4();
 
     const session = await mongoose.startSession();
 
