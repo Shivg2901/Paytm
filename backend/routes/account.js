@@ -6,8 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
 const cookieParser = require("cookie-parser");
 
-router.use(rollbackMiddleware);
-
 router.use(cookieParser());
 
 router.get("/balance", authMiddleware, async (req, res) => {
@@ -27,7 +25,7 @@ router.get("/balance", authMiddleware, async (req, res) => {
     }
 })
 
-router.post("/transfer", authMiddleware, async (req, res) => {
+router.post("/transfer", authMiddleware, rollbackMiddleware, async (req, res) => {
     const transactionId = (req.cookies && req.cookies.transactionId) || uuidv4();
 
     const session = await mongoose.startSession();
@@ -82,11 +80,11 @@ router.post("/transfer", authMiddleware, async (req, res) => {
         }).session(session);
 
         await session.commitTransaction();
-        res.cookie('transactionId', transactionId);
         res.status(200).json({
             message: "Transaction Successful"
         });
     } catch (err) {
+        res.cookie('transactionId', transactionId);
         await session.abortTransaction();
         res.status(500).json({
             message: "Transaction aborted"

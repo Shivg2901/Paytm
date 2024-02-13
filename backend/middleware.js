@@ -1,6 +1,7 @@
 const { JWT_SECRET } = require("./config");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const mongoose = require("mongoose")
 
 
 const authMiddleware = (req, res, next) => {
@@ -55,3 +56,4 @@ module.exports = {
     authMiddleware,
     rollbackMiddleware
 }
+
