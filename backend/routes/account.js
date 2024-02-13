@@ -2,8 +2,11 @@ const express = require("express");
 const { authMiddleware } = require("../middleware");
 const { Account } = require("../db");
 const { default: mongoose } = require("mongoose");
+const uuid = require('uuid/v4');
+const { rollbackMiddleware } = require("../rollbackMiddleware");
 const router = express.Router();
 
+router.use(rollbackMiddleware);
 
 router.get("/balance", authMiddleware, async (req, res) => {
     const id = req.userId;
@@ -21,7 +24,10 @@ router.get("/balance", authMiddleware, async (req, res) => {
         })
     }
 })
+
 router.post("/transfer", authMiddleware, async (req, res) => {
+    const transactionId = req.cookies.transactionId || uuid();
+
     const session = await mongoose.startSession();
 
     session.startTransaction();
@@ -74,6 +80,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
         }).session(session);
 
         await session.commitTransaction();
+        res.cookie('transactionId', transactionId);
         res.status(200).json({
             message: "Transaction Successful"
         });
